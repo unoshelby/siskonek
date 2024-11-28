@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIS Konek</title>
+    <style>
+        /* General Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            width: 90%;
+            max-width: 400px;
+            padding: 30px;
+            border-radius: 15px;
+            background: #ffffff;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .logo-container {
+            margin-bottom: 20px;
+            padding: 10px;
+        }
+        .logo-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        h1 {
+            font-size: 1.8em;
+            color: #444;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 1em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .button {
+            width: 100%;
+            margin: 10px 0;
+            padding: 12px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+            color: #ffffff;
+        }
+        .button.privacy { background: #555; color: #ffffff; }
+        .button.psychmates { background: #5a9ec4; }
+        .button.adviser { background: #68b77b; }
+        .button.professional { background: #d97079; }
+        .button:hover { transform: scale(1.03); }
+
+        /* Data Privacy Modal */
+        .privacy-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+        .modal-header {
+            font-size: 1.4em;
+            color: #444;
+            margin-bottom: 15px;
+        }
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .checkbox input {
+            transform: scale(1.2);
+            margin-right: 10px;
+        }
+        .close-modal {
+            background: #555;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .conversation-type {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .conversation-type button {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #ffffff;
+            background: #5a5a89;
+        }
+
+        /* Chatbox Styles */
+        .chatbox {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            max-width: 400px;
+            height: 400px;
+            border-radius: 10px;
+            background: #f9f9f9;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            position: relative;
+            color: #333;
+            margin-top: 20px;
+        }
+        .chat-header {
+            padding: 10px;
+            background: #5a5a89;
+            color: white;
+            text-align: center;
+            font-size: 1.2em;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* Space between messages */
+        }
+        .message {
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 75%;
+            color: #333;
+            position: relative;
+            word-wrap: break-word; /* Allow long words to break onto the next line */
+        }
+        .user-message {
+            background: #5a9ec4;
+            color: white;
+            align-self: flex-end; /* Align user messages to the right */
+        }
+        .psychmates-message {
+            background: #e0e0eb;
+            color: #333;
+            align-self: flex-start; /* Align psychmates messages to the left */
+        }
+        .chat-input {
+            display: flex;
+            border-top: 1px solid #ddd;
+            background: #f1f1f1;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            font-size: 1em;
+            background: #ffffff;
+            color: #333;
+        }
+        .chat-input button {
+            padding: 10px;
+            background: #5a5a89;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Psychmates Response Dialog */
+        .response-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+        .response-modal-header {
+            font-size: 1.4em;
+            color: #444;
+            margin-bottom: 15px;
+        }
+        .response-modal-body {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        .response-modal-body input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .close-response-modal {
+            background: #555;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+			/* Footer Styles */
+        .footnotes {
+            font-size: 0.8em;
+            color: #555;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .footnotes p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <img src="d.png" width="500" height="600"alt="School Logo ">
+        </div>
+       
+		 <h3> "Your everyday bestie Hotline":</h3>
+        <p>Welcome! Please complete the data privacy agreement before chatting:</p>
+        <button class="button privacy" onclick="openPrivacyModal()">Data Privacy Consent</button>
+        <button class="button psychmates" onclick="openChat('Psychmates')">Talk to Psychmates</button>
+        <button class="button adviser" onclick="openChat('Adviser or Professor')">Talk to Psychologist</button>
+		
+		<footer class="footnotes">
+        <p id="footnote1"><sup>
+		Design by Jessa Rose,Regine,Maureen Justine,Erica</sup></p>
+        <p id="footnote2"><sup> © 2024. All rights reserved</sup></p>
+	
+			</footer>
+      
+    </div>
+
+    <!-- Privacy Modal -->
+    <div class="privacy-modal" id="privacy-modal">
+        <div class="modal-header">Data Privacy Consent</div>
+        <div class="modal-body">
+            <div class="checkbox"><input type="checkbox" id="agreeInfoSharing"> <label for="agreeInfoSharing">I consent to share necessary personal data for this chat.</label></div>
+            <div class="checkbox"><input type="checkbox" id="agreeUsage"> <label for="agreeUsage">I understand that my data will only be used for assistance purposes.</label></div>
+            <div class="checkbox"><input type="checkbox" id="agreeStorage"> <label for="agreeStorage">I consent to storage of my data as per policy.</label></div>
+        </div>
+        <button class="close-modal" onclick="closePrivacyModal()">I Consent</button>
+    </div>
+
+    <!-- Chatbox -->
+    <div class="chatbox" id="chatbox">
+        <div class="chat-header" id="chatHeader">Chat</div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Type a message...">
+            <button onclick="sendMessage()">Send</button>
+			
+			
+        </div>
+    </div>
+
+    <!-- Psychmates Response Modal -->
+    <div class="response-modal" id="response-modal">
+        <div class="response-modal-header">Psychmates Response</div>
+        <div class="response-modal-body">
+            <input type="text" id="responseInput" placeholder="Type response...">
+        </div>
+        <button class="close-response-modal" onclick="sendResponse()">Send Response</button>
+    </div>
+ 
+    </footer>
+    <script>
+        function openPrivacyModal() {
+            document.getElementById("privacy-modal").style.display = "block";
+        }
+
+        function closePrivacyModal() {
+            if (document.getElementById("agreeInfoSharing").checked && document.getElementById("agreeUsage").checked && document.getElementById("agreeStorage").checked) {
+                document.getElementById("privacy-modal").style.display = "none";
+            } else {
+                alert("Please agree to all the conditions.");
+            }
+        }
+
+        function openChat(partner) {
+            document.getElementById("chatbox").style.display = "flex";
+            document.getElementById("chatHeader").innerText = "Chat with " + partner;
+            alert(partner + " is now online!");  // Show online notification
+        }
+
+        function sendMessage() {
+            const input = document.getElementById("userInput");
+            const message = input.value;
+            if (message.trim() !== "") {
+                const chatMessages = document.getElementById("chatMessages");
+
+                const userMessage = document.createElement("div");
+                userMessage.classList.add("message", "user-message");
+                userMessage.innerHTML = "<strong>User:</strong> " + message;
+                chatMessages.appendChild(userMessage);
+
+                input.value = "";
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                openResponseModal();
+            }
+        }
+
+        function openResponseModal() {
+            document.getElementById("response-modal").style.display = "block";
+        }
+
+        function sendResponse() {
+            const responseInput = document.getElementById("responseInput");
+            const responseMessage = responseInput.value;
+            if (responseMessage.trim() !== "") {
+                const chatMessages = document.getElementById("chatMessages");
+
+                const psychmateMessage = document.createElement("div");
+                psychmateMessage.classList.add("message", "psychmates-message");
+                psychmateMessage.innerHTML = "<strong>Psychmates:</strong> " + responseMessage;
+                chatMessages.appendChild(psychmateMessage);
+
+                responseInput.value = "";
+                document.getElementById("response-modal").style.display = "none";
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+    </script>
+</body>
+</html>
